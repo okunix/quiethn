@@ -126,9 +126,12 @@ func (client *HackerNewsClientImpl) GetItemById(ctx context.Context, id uint32) 
 	if err != nil {
 		return nil, err
 	}
+	if newsItemResponse.Deleted {
+		return nil, fmt.Errorf("item %d is deleted", id)
+	}
 	newsItem, err := NewNewsItem(
 		newsItemResponse.Id,
-		newsItemResponse.Name,
+		newsItemResponse.Title,
 		newsItemResponse.URL,
 		newsItemResponse.Type,
 		time.Unix(newsItemResponse.Time, 0),

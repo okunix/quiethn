@@ -67,3 +67,26 @@ func TestExtractDomain(t *testing.T) {
 	}
 
 }
+
+func TestExtractTextFromHTML(t *testing.T) {
+	tests := []struct {
+		input string
+		want  string
+	}{
+		{"<p>Hello <b>world</b>!</p>", "Hello world!"},
+		{"   <div>Text    with \t irregular\n spaces</div>  ", "Text with irregular spaces"},
+		{"No tags just text", "No tags just text"},
+		{"", ""},
+		{"<img src='image.jpg'/>", ""},
+		{"<span>  Multiple\n\n\nspaces\tand tabs </span>", "Multiple spaces and tabs"},
+		{"<a href=\"#\">Link</a>", "Link"},
+		{"<script>alert('xss')</script>", "alert('xss')"},
+	}
+
+	for _, test := range tests {
+		got := extractTextFromHTML(test.input)
+		if got != test.want {
+			t.Errorf("extractTextFromHTML(%q) = %q; want %q", test.input, got, test.want)
+		}
+	}
+}

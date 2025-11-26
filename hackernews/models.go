@@ -9,14 +9,19 @@ import (
 
 type NewsItem struct {
 	Id     uint32    `json:"id"`
-	Name   string    `json:"name"`
+	Title  string    `json:"title"`
 	URL    string    `json:"url"`
 	Domain string    `json:"domain"`
 	Type   string    `json:"type"`
 	Time   time.Time `json:"time"`
 }
 
-var domainRegex = regexp.MustCompile(`^https?://(?:.+@)?(?:www.)?([^\s/?:]+)(?:[/?:]|$)`)
+var (
+	domainRegex          = regexp.MustCompile(`^https?://(?:.+@)?(?:www.)?([^\s/?:]+)(?:[/?:]|$)`)
+	trimSpacesRegex      = regexp.MustCompile(`^\s+|\s+$`)
+	htmlTagRegex         = regexp.MustCompile(`<[^>]*>`)
+	sequentialWhitespace = regexp.MustCompile(`\s+`)
+)
 
 func extractDomain(url string) (string, error) {
 	regexSubmatchList := domainRegex.FindStringSubmatch(url)
@@ -26,14 +31,21 @@ func extractDomain(url string) (string, error) {
 	return regexSubmatchList[1], nil
 }
 
-func NewNewsItem(id uint32, name, url, itemType string, time time.Time) (NewsItem, error) {
+func extractTextFromHTML(html string) string {
+	s := htmlTagRegex.ReplaceAllString(html, "")
+	s = sequentialWhitespace.ReplaceAllString(s, " ")
+	s = trimSpacesRegex.ReplaceAllString(s, "")
+	return s
+}
+
+func NewNewsItem(id uint32, title, url, itemType string, time time.Time) (NewsItem, error) {
 	domain, err := extractDomain(url)
 	if err != nil {
 		return NewsItem{}, err
 	}
 	newsItem := NewsItem{
 		Id:     id,
-		Name:   name,
+		Title:  extractTextFromHTML(title),
 		URL:    url,
 		Domain: domain,
 		Type:   itemType,
@@ -47,9 +59,10 @@ func (ni *NewsItem) Validate(ctx context.Context) (problems map[string]string) {
 }
 
 type NewsItemResponse struct {
-	Id   uint32 `json:"id"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
-	Type string `json:"type"`
-	Time int64  `json:"time"`
+	Id      uint32 `json:"id"`
+	Title   string `json:"title"`
+	URL     string `json:"url"`
+	Type    string `json:"type"`
+	Time    int64  `json:"time"`
+	Deleted bool   `json:"deleted"`
 }
