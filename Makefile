@@ -1,5 +1,5 @@
 GO_MAIN=main.go
-GO_SOURCES=$(shell find . -name *.go -not -path './vendor/*')
+GO_SOURCES=$(shell find . -name '*.go' -not -path './vendor/*')
 
 TARGET_ARCH=amd64
 TARGET_OS=linux
