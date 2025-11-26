@@ -1,0 +1,38 @@
+body {
+  font-family: Roboto;
+  background-color: #f5f5f7;
+  color: #333333;
+  font-weight: 400;
+  line-height: 20px;
+  font-size: 16px;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+}
+
+.list-view {
+  background-color: #ffffff;
+  border-radius: 10px;
+}
+
+.list-view > .item {
+  border-top: solid 1px lightgray;
+  padding: 20px 40px;
+}
+
+.bubble {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px 40px;
+}
+
+.btn {
+  background-color: #e2e2e4;
+}
+
+#site-title {
+  font-size: 20px;
+  font-weight: bold;
+}
