@@ -33,7 +33,18 @@ func main() {
 
 	ctx := context.Background()
 	hn := hackernews.NewHackerNewsClient("https://hacker-news.firebaseio.com")
-	stories, err := hn.GetTopStories(ctx, topStoriesLimit)
+	hnCache := hackernews.NewHackerNewsClientWithCache(hn)
+	// first request
+	stories, err := hnCache.GetTopStories(ctx, topStoriesLimit)
+	if err != nil {
+		panic(err)
+	}
+	for _, i := range stories {
+		fmt.Printf("%+v\n", i)
+	}
+	fmt.Println()
+	// second request
+	stories, err = hnCache.GetTopStories(ctx, topStoriesLimit)
 	if err != nil {
 		panic(err)
 	}
