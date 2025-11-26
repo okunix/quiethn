@@ -22,7 +22,7 @@ ${BIN_PATH}: ${GO_MAIN} ${GO_SOURCES}
 
 .PHONY: run 
 run: ${BIN_PATH}
-	chmod +x $<
+	if [ ! -x $< ]; then chmod +x $<; fi
 	$<
 
 .PHONY: clean
