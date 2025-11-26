@@ -3,9 +3,11 @@ package hackernews
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"sync"
 )
 
 type HackerNewsClient interface {
@@ -34,8 +36,12 @@ func (client *HackerNewsClientImpl) GetTopStories(
 	ctx context.Context,
 	limit int,
 ) ([]*NewsItem, error) {
+	if limit > 500 {
+		return nil, errors.New("limit it too high, max 500")
+	}
+
 	getTopStoriesURL := client.baseURL + getTopStoriesPath
-	req, err := http.NewRequest("GET", getTopStoriesURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", getTopStoriesURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,18 +58,37 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		return nil, err
 	}
 
+	var mutex sync.Mutex
 	newsItems := make([]*NewsItem, 0, limit)
+	getStoriesContext, cancel := context.WithCancel(ctx)
+	defer cancel()
+	sem := make(chan struct{}, limit)
 	for _, id := range ids {
-		item, err := client.GetItemById(ctx, id)
-		if err != nil {
-			slog.Error("failed to get item by id", "id", id, "error", err.Error())
-			continue
-		}
-		if item.Type != "story" {
-			continue
-		}
-		newsItems = append(newsItems, item)
+		sem <- struct{}{}
+
+		go func(ctx context.Context, itemId uint32) {
+			defer func() { <-sem }()
+
+			item, err := client.GetItemById(ctx, itemId)
+			if err != nil {
+				if errors.Is(err, context.Canceled) {
+					return
+				}
+				slog.Error("failed to get item by id", "id", id, "error", err.Error())
+				return
+			}
+			if item.Type != "story" {
+				return
+			}
+
+			mutex.Lock()
+			newsItems = append(newsItems, item)
+			mutex.Unlock()
+
+		}(getStoriesContext, id)
+
 		if len(newsItems) == limit {
+			cancel()
 			break
 		}
 	}
@@ -73,7 +98,7 @@ func (client *HackerNewsClientImpl) GetTopStories(
 
 func (client *HackerNewsClientImpl) GetItemById(ctx context.Context, id uint32) (*NewsItem, error) {
 	getItemByIdURL := client.baseURL + getItemByIdPath(id)
-	req, err := http.NewRequest("GET", getItemByIdURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", getItemByIdURL, nil)
 	if err != nil {
 		return nil, err
 	}
