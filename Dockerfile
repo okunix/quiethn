@@ -13,4 +13,4 @@ COPY --from=builder /app/bin/quiethn /bin/quiethn
 
 HEALTHCHECK --interval=15s --timeout=10s --start-period=5s --retries=3 CMD [ "/bin/sh", "-c", "curl -f 'http://localhost' || exit 1" ]
 
-CMD [ "/bin/quiethn" ]
+ENTRYPOINT [ "/bin/quiethn" ]
