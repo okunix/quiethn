@@ -23,7 +23,7 @@ ${BIN_PATH}: ${GO_MAIN} ${GO_SOURCES}
 .PHONY: run 
 run: ${BIN_PATH}
 	if [ ! -x $< ]; then chmod +x $<; fi
-	$<
+	HN_SERVER_PORT=8080 $<
 
 .PHONY: clean
 clean:
