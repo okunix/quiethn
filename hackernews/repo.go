@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"sync"
+	"time"
 )
 
 type HackerNewsClient interface {
@@ -93,6 +95,16 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		}
 	}
 
+	// sorting
+	slices.SortFunc(newsItems, func(a *NewsItem, b *NewsItem) int {
+		if a.Time.Sub(b.Time) > 0 {
+			return -1
+		} else if a.Time.Sub(b.Time) < 0 {
+			return 1
+		}
+		return 0
+	})
+
 	return newsItems, nil
 }
 
@@ -119,6 +131,7 @@ func (client *HackerNewsClientImpl) GetItemById(ctx context.Context, id uint32) 
 		newsItemResponse.Name,
 		newsItemResponse.URL,
 		newsItemResponse.Type,
+		time.Unix(newsItemResponse.Time, 0),
 	)
 	return &newsItem, err
 }

@@ -4,14 +4,16 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"time"
 )
 
 type NewsItem struct {
-	Id     uint32 `json:"id"`
-	Name   string `json:"name"`
-	URL    string `json:"url"`
-	Domain string `json:"domain"`
-	Type   string `json:"type"`
+	Id     uint32    `json:"id"`
+	Name   string    `json:"name"`
+	URL    string    `json:"url"`
+	Domain string    `json:"domain"`
+	Type   string    `json:"type"`
+	Time   time.Time `json:"time"`
 }
 
 var domainRegex = regexp.MustCompile(`^https?://(?:.+@)?(?:www.)?([^\s/?:]+)(?:[/?:]|$)`)
@@ -24,7 +26,7 @@ func extractDomain(url string) (string, error) {
 	return regexSubmatchList[1], nil
 }
 
-func NewNewsItem(id uint32, name, url, itemType string) (NewsItem, error) {
+func NewNewsItem(id uint32, name, url, itemType string, time time.Time) (NewsItem, error) {
 	domain, err := extractDomain(url)
 	if err != nil {
 		return NewsItem{}, err
@@ -35,6 +37,7 @@ func NewNewsItem(id uint32, name, url, itemType string) (NewsItem, error) {
 		URL:    url,
 		Domain: domain,
 		Type:   itemType,
+		Time:   time,
 	}
 	return newsItem, nil
 }
@@ -48,4 +51,5 @@ type NewsItemResponse struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 	Type string `json:"type"`
+	Time int64  `json:"time"`
 }
