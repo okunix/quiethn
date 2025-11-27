@@ -4,9 +4,9 @@ import (
 	"io/fs"
 	"net/http"
 
-	"github.com/okunix/quietHN/hackernews"
-	"github.com/okunix/quietHN/handler"
-	"github.com/okunix/quietHN/middleware"
+	"github.com/okunix/quiethn/hackernews"
+	"github.com/okunix/quiethn/handler"
+	"github.com/okunix/quiethn/middleware"
 )
 
 func NewRouter(

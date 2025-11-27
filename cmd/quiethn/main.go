@@ -1,18 +1,15 @@
 package main
 
 import (
-	"embed"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
 
-	"github.com/okunix/quietHN/hackernews"
-	"github.com/okunix/quietHN/router"
+	"github.com/okunix/quiethn"
+	"github.com/okunix/quiethn/hackernews"
+	"github.com/okunix/quiethn/router"
 )
-
-//go:embed static/*
-var staticFS embed.FS
 
 func GetenvWithDefault(key string, defaultValue string) string {
 	if value, ok := os.LookupEnv(key); ok {
@@ -28,8 +25,12 @@ func main() {
 	hn := hackernews.NewHackerNewsClient("https://hacker-news.firebaseio.com")
 	hnCache := hackernews.NewHackerNewsClientWithCache(hn)
 
-	router := router.NewRouter(hnCache, staticFS)
+	router := router.NewRouter(hnCache, quiethn.StaticFS)
 
 	slog.Info("server is running", "host", serverHost, "port", serverPort)
-	http.ListenAndServe(net.JoinHostPort(serverHost, serverPort), router)
+
+	err := http.ListenAndServe(net.JoinHostPort(serverHost, serverPort), router)
+	if err != nil {
+		slog.Error("server fail", "error", err.Error())
+	}
 }

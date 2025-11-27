@@ -1,3 +1,3 @@
-module github.com/okunix/quietHN
+module github.com/okunix/quiethn
 
 go 1.25.4

@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/okunix/quietHN/hackernews"
-	"github.com/okunix/quietHN/templates"
+	"github.com/okunix/quiethn/hackernews"
+	"github.com/okunix/quiethn/templates"
 )
 
 func Index(hnClient hackernews.HackerNewsClient) http.HandlerFunc {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/okunix/quietHN/cache"
+	"github.com/okunix/quiethn/cache"
 )
 
 type HackerNewsClientWithCache struct {
