@@ -17,8 +17,7 @@ ${BIN_PATH}: ${GO_MAIN} ${GO_SOURCES}
 	go mod tidy
 	go mod download
 	go test ./...
-	GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o $@ $<
-	if [ -f config.yaml ]; then cp config.yaml ./bin/config.yaml; fi 
+	CGO_ENABLED=0 GOOS=${TARGET_OS} GOARCH=${TARGET_ARCH} go build -o $@ $<
 
 .PHONY: run 
 run: ${BIN_PATH}
