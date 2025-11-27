@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"log/slog"
 	"net"
@@ -14,10 +13,6 @@ import (
 
 //go:embed static/*
 var staticFS embed.FS
-
-type Validatable interface {
-	Validate(ctx context.Context) (problems map[string]string)
-}
 
 func GetenvWithDefault(key string, defaultValue string) string {
 	if value, ok := os.LookupEnv(key); ok {
