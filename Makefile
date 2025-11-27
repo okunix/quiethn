@@ -28,3 +28,23 @@ run: ${BIN_PATH}
 clean:
 	go clean
 	rm -rf ./bin
+
+DOCKER_IMAGE=quiethn
+DOCKER_TAG=latest
+DOCKERFILE=Dockerfile
+
+.PHONY: docker-build
+docker-build: ${DOCKERFILE} ${GO_SOURCES}
+	docker buildx build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f ${DOCKERFILE} .
+
+.PHONY: docker-push
+docker-push: docker-build 
+	docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+.PHONY: docker-run
+docker-run: docker-build
+	docker run --rm -p 8080:80 ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+.PHONY: docker-clean
+docker-clean:
+	docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}
