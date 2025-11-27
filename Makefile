@@ -29,7 +29,7 @@ clean:
 	go clean
 	rm -rf ./bin
 
-DOCKER_IMAGE=quiethn
+DOCKER_IMAGE=ghcr.io/okunix/quiethn
 DOCKER_TAG=latest
 DOCKERFILE=Dockerfile
 
