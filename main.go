@@ -56,6 +56,7 @@ func NewRouter(hackerNewsClient hackernews.HackerNewsClient) http.Handler {
 	router.Handle("/static/", http.FileServerFS(staticFS))
 	router.Handle("GET /{$}", IndexHandler(hackerNewsClient))
 	handler := middleware.Logger()(router)
+	handler = middleware.RealIP()(handler)
 	return handler
 }
 

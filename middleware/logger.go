@@ -3,7 +3,12 @@ package middleware
 import (
 	"log/slog"
 	"net/http"
+	"regexp"
 	"time"
+)
+
+var (
+	portRegex = regexp.MustCompile(`:\d+$`)
 )
 
 type wrappedWriter struct {
@@ -23,6 +28,7 @@ func Logger() Middleware {
 			startTime := time.Now()
 			next.ServeHTTP(writer, r)
 			latency := time.Since(startTime).Microseconds()
+			ip := portRegex.ReplaceAllString(r.RemoteAddr, "")
 			slog.Info(
 				"incoming request",
 				"path", r.URL.Path,
@@ -30,6 +36,7 @@ func Logger() Middleware {
 				"method", r.Method,
 				//"userAgent", r.UserAgent(),
 				"latencyMicro", latency,
+				"ip", ip,
 			)
 		})
 	}
