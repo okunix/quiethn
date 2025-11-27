@@ -1,5 +1,26 @@
 {{- define "title" -}} Quiet HackerNews {{- end -}} 
 
 {{- define "content" }}
-<div class="bubble">Index Page 2</div>
+<h1>Welcome to Quiet HackerNews 🌐</h1>
+
+<section>
+  <p>
+    Discover top Hacker News stories in serene focus - no distractions from
+    comments, author names, or job posts.
+  </p>
+  <p>Just pure, high-quality reads to fuel your curiosity. 🚀📖</p>
+</section>
+
+<section>
+  <p>Built for hackers who crave signal over noise.</p>
+  <p>Dive in and enjoy the quiet revolution! 💻✨</p>
+</section>
+
+<div class="list-view">
+  {{- range $k, $v := .Stories }}
+  <div class="item">
+    <span class="dimmed">{{ inc $k }}.</span> <a href="{{ $v.URL }}" title="{{ $v.Title }}">{{ $v.Title | trunc 60 "..." }}</a> <span class="dimmed">({{ $v.Domain }})</span>
+  </div>
+  {{- end }}
+</div>
 {{- end }}

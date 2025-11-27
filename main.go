@@ -17,8 +17,22 @@ import (
 var templateFS embed.FS
 
 var (
-	anyTemplate = func(name string) *template.Template {
-		return template.Must(template.ParseFS(templateFS, "templates/layout.html", name))
+	anyTemplate = func(templatePath string) *template.Template {
+		funcMap := template.FuncMap{
+			"inc": func(n int) int {
+				return n + 1
+			},
+			"trunc": func(n int, add string, s string) string {
+				if len(s) <= n+len(add) {
+					return s
+				}
+				return s[:n] + add
+			},
+		}
+		return template.Must(
+			template.New("layout.html").Funcs(funcMap).
+				ParseFS(templateFS, templatePath, "templates/layout.html"),
+		)
 	}
 	indexTemplate = anyTemplate("templates/index.html")
 )
@@ -57,6 +71,7 @@ func NewRouter(hackerNewsClient hackernews.HackerNewsClient) http.Handler {
 	router.Handle("GET /{$}", IndexHandler(hackerNewsClient))
 	handler := middleware.Logger()(router)
 	handler = middleware.RealIP()(handler)
+	//handler = middleware.NoCache()(handler)
 	return handler
 }
 
