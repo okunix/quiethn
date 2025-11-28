@@ -1,0 +1,30 @@
+services:
+  quiethn-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quiethn-web
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    environment:
+      HN_REDIS_ADDR: quiethn-valkey:6379
+    depends_on:
+      valkey:
+        condition: service_healthy
+  valkey:
+    image: valkey/valkey:latest
+    container_name: quiethn-valkey
+    restart: unless-stopped
+    volumes:
+      - valkey_data:/data
+      - ./valkey.conf:/etc/valkey/valkey.conf
+    command: ["valkey-server", "/etc/valkey/valkey.conf"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  valkey_data: {}

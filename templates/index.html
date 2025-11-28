@@ -16,11 +16,16 @@
   <p>Dive in and enjoy the quiet revolution! 💻✨</p>
 </section>
 
+{{- if .Stories }}
 <div class="list-view">
   {{- range $k, $v := .Stories }}
   <div class="item">
-    <span class="dimmed">{{ inc $k }}.</span> <a href="{{ $v.URL }}" title="{{ $v.Title }}">{{ $v.Title | trunc 60 "..." }}</a> <span class="dimmed">({{ $v.Domain }})</span>
+    <span class="dimmed">{{ inc $k }}.</span>
+    <a href="{{ $v.URL }}" title="{{ $v.Title }}">{{ $v.Title | trunc 60 "..." }}</a>
+    <span class="dimmed">({{ $v.Domain }})</span>
   </div>
   {{- end }}
 </div>
-{{- end }}
+{{- else }}
+<div class="bubble">Nothing to show yet.</div>
+{{- end }} {{- end }}

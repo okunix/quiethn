@@ -23,5 +23,7 @@ var (
 	ServerPort = GetenvWithDefault("HN_SERVER_PORT", "80")
 	ServerHost = GetenvWithDefault("HN_SERVER_HOST", "0.0.0.0")
 
-	RedisAddr = MustGetenv("HN_REDIS_ADDR")
+	RedisAddr     = MustGetenv("HN_REDIS_ADDR")
+	RedisPassword = GetenvWithDefault("HN_REDIS_PASSWORD", "")
+	RedisDB       = GetenvWithDefault("HN_REDIS_DB", "0")
 )

@@ -10,13 +10,13 @@ import (
 )
 
 func NewRouter(
-	hackerNewsClient hackernews.HackerNewsClient,
+	hackerNewsRepo hackernews.HackerNewsRepo,
 	staticFS fs.FS,
 ) http.Handler {
 	router := http.NewServeMux()
 
 	router.Handle("/static/", http.FileServerFS(staticFS))
-	router.Handle("GET /{$}", handler.Index(hackerNewsClient))
+	router.Handle("GET /{$}", handler.Index(hackerNewsRepo))
 
 	handler := middleware.Logger()(router)
 	handler = middleware.RealIP()(handler)

@@ -7,13 +7,13 @@ import (
 	"github.com/okunix/quiethn/templates"
 )
 
-func Index(hnClient hackernews.HackerNewsClient) http.HandlerFunc {
+func Index(hnRepo hackernews.HackerNewsRepo) http.HandlerFunc {
 	type templateData struct {
 		Stories []*hackernews.NewsItem
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		stories, err := hnClient.GetTopStories(ctx, 30)
+		stories, err := hnRepo.GetTopStories(ctx)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
