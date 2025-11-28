@@ -4,23 +4,16 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/okunix/quiethn"
+	"github.com/okunix/quiethn/config"
 	"github.com/okunix/quiethn/hackernews"
 	"github.com/okunix/quiethn/router"
 )
 
-func GetenvWithDefault(key string, defaultValue string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return defaultValue
-}
-
 func main() {
-	serverPort := GetenvWithDefault("HN_SERVER_PORT", "80")
-	serverHost := GetenvWithDefault("HN_SERVER_HOST", "0.0.0.0")
+	serverPort := config.ServerPort
+	serverHost := config.ServerHost
 
 	hn := hackernews.NewHackerNewsClient("https://hacker-news.firebaseio.com")
 	hnCache := hackernews.NewHackerNewsClientWithCache(hn)
