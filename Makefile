@@ -66,7 +66,7 @@ DOCKER_TAG=latest
 DOCKERFILE=Dockerfile
 
 .PHONY: docker-build
-docker-build: ${DOCKERFILE} ${GO_SOURCES}
+docker-build: ${DOCKERFILE}
 	docker buildx build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f ${DOCKERFILE} .
 
 .PHONY: docker-push
@@ -80,3 +80,8 @@ docker-run: docker-build
 .PHONY: docker-clean
 docker-clean:
 	docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+.PHONY: docker-build-updater
+docker-build-updater: DOCKERFILE=updater.Dockerfile 
+docker-build-updater: DOCKER_IMAGE=ghcr.io/okunix/quiethn-updater
+docker-build-updater: docker-build
