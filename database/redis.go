@@ -20,14 +20,15 @@ func NewRedisClient() *redis.Client {
 		if err != nil {
 			panic(err)
 		}
-		rdb := redis.NewClient(&redis.Options{
+		client := redis.NewClient(&redis.Options{
 			Addr:     config.RedisAddr,
 			Password: config.RedisPassword,
 			DB:       redisDB,
 		})
-		if err := rdb.Ping(context.TODO()).Err(); err != nil {
+		if err := client.Ping(context.TODO()).Err(); err != nil {
 			panic(err)
 		}
+		rdb = client
 	})
 	return rdb
 }
