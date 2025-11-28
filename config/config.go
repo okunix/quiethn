@@ -20,6 +20,8 @@ func MustGetenv(key string) string {
 }
 
 var (
+	HackerNewsBaseURL = GetenvWithDefault("HN_BASE_URL", "https://hacker-news.firebaseio.com")
+
 	ServerPort = GetenvWithDefault("HN_SERVER_PORT", "80")
 	ServerHost = GetenvWithDefault("HN_SERVER_HOST", "0.0.0.0")
 
