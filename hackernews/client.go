@@ -60,18 +60,18 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		return nil, err
 	}
 
-	var mutex sync.Mutex
-	newsItems := make([]*NewsItem, 0, limit)
-	getStoriesContext, cancel := context.WithCancel(ctx)
+	var (
+		mu sync.RWMutex
+		wg sync.WaitGroup
+	)
+	newCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	sem := make(chan struct{}, limit)
+	newsItems := make([]*NewsItem, 0, limit)
 	for _, id := range ids {
-		sem <- struct{}{}
-
-		go func(ctx context.Context, itemId uint32) {
-			defer func() { <-sem }()
-
-			item, err := client.GetItemById(ctx, itemId)
+		wg.Add(1)
+		go func(ctx context.Context, id uint32) {
+			defer wg.Done()
+			item, err := client.GetItemById(ctx, id)
 			if err != nil {
 				if errors.Is(err, context.Canceled) {
 					return
@@ -82,18 +82,12 @@ func (client *HackerNewsClientImpl) GetTopStories(
 			if item.Type != "story" {
 				return
 			}
-
-			mutex.Lock()
+			mu.Lock()
 			newsItems = append(newsItems, item)
-			mutex.Unlock()
-
-		}(getStoriesContext, id)
-
-		if len(newsItems) == limit {
-			cancel()
-			break
-		}
+			mu.Unlock()
+		}(newCtx, id)
 	}
+	wg.Wait()
 
 	// sorting
 	slices.SortFunc(newsItems, func(a *NewsItem, b *NewsItem) int {
@@ -105,7 +99,7 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		return 0
 	})
 
-	return newsItems, nil
+	return newsItems[:limit], nil
 }
 
 func (client *HackerNewsClientImpl) GetItemById(ctx context.Context, id uint32) (*NewsItem, error) {
