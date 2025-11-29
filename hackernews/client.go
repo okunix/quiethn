@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 	"slices"
-	"sync"
 	"time"
 )
 
@@ -60,37 +59,18 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		return nil, err
 	}
 
-	var mutex sync.Mutex
 	newsItems := make([]*NewsItem, 0, limit)
-	getStoriesContext, cancel := context.WithCancel(ctx)
-	defer cancel()
-	sem := make(chan struct{}, limit)
 	for _, id := range ids {
-		sem <- struct{}{}
-
-		go func(ctx context.Context, itemId uint32) {
-			defer func() { <-sem }()
-
-			item, err := client.GetItemById(ctx, itemId)
-			if err != nil {
-				if errors.Is(err, context.Canceled) {
-					return
-				}
-				slog.Error("failed to get item by id", "id", id, "error", err.Error())
-				return
-			}
-			if item.Type != "story" {
-				return
-			}
-
-			mutex.Lock()
-			newsItems = append(newsItems, item)
-			mutex.Unlock()
-
-		}(getStoriesContext, id)
-
+		item, err := client.GetItemById(ctx, id)
+		if err != nil {
+			slog.Error("failed to get item by id", "id", id, "error", err.Error())
+			continue
+		}
+		if item.Type != "story" {
+			continue
+		}
+		newsItems = append(newsItems, item)
 		if len(newsItems) == limit {
-			cancel()
 			break
 		}
 	}
