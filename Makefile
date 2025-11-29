@@ -63,7 +63,7 @@ run-updater: ${UPDATER_BIN}
 
 DOCKER_IMAGE=ghcr.io/okunix/quiethn
 DOCKER_TAG=latest
-DOCKERFILE=Dockerfile
+DOCKERFILE=web.Dockerfile
 
 .PHONY: docker-build
 docker-build: ${DOCKERFILE}
