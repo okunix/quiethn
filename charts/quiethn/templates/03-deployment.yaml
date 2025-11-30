@@ -6,6 +6,7 @@ metadata:
     {{- include "quiethn.labels" . | nindent 4 }}
     app: {{ include "quiethn.fullname" . }}
 spec:
+  replicas: {{ .Values.deployment.replicas }} 
   selector:
     matchLabels:
       app: {{ include "quiethn.fullname" . }}
