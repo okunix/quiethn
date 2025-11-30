@@ -1,0 +1,19 @@
+service:
+  port: 80
+
+deployment:
+  quiethn:
+    image: ghcr.io/okunix/quiethn:latest
+    containerPort: 80
+
+redis:
+  addr: redis:6379
+  password: ""
+
+updater:
+  schedule: "* * * * *"
+  image: ghcr.io/okunix/quiethn-updater:latest
+  ttlSecondsAfterFinished: 60
+
+serviceAccount:
+  create: true

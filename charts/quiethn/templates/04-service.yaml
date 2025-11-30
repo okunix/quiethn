@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quiethn.fullname" . }}
+  labels:
+    {{- include "quiethn.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ include "quiethn.fullname" . }} 
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http 

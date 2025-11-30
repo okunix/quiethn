@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "quiethn.fullname" . }}
+  labels:
+    {{- include "quiethn.labels" . | nindent 4 }}
+spec:
+  concurrencyPolicy: Replace 
+  schedule: {{ .Values.updater.schedule | quote }}
+  jobTemplate:
+    spec:
+      {{- with .Values.updater.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - image: {{ .Values.updater.image }}
+              name: updater 
+              imagePullPolicy: Always
+              env:
+                - name: HN_REDIS_ADDR
+                  valueFrom:
+                    configMapKeyRef:
+                      key: redisAddr
+                      name: {{ include "quiethn.configMapName" . }}
+                - name: HN_REDIS_DB
+                  valueFrom:
+                    configMapKeyRef:
+                      key: redisDb
+                      name: {{ include "quiethn.configMapName" . }}
+                      optional: true
+                - name: HN_REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: redisPassword 
+                      name: {{ include "quiethn.secretName" . }}
+                - name: HN_BASE_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      key: hnAddr 
+                      name: {{ include "quiethn.configMapName" . }}
+                      optional: true

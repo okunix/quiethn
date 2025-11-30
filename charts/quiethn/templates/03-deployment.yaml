@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "quiethn.fullname" . }}
+  labels:
+    {{- include "quiethn.labels" . | nindent 4 }}
+    app: {{ include "quiethn.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "quiethn.fullname" . }}
+  template:
+    metadata:
+      name: {{ include "quiethn.fullname" . }}
+      labels:
+        app: {{ include "quiethn.fullname" . }}
+        {{- include "quiethn.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "quiethn.serviceAccountName" . }}
+      containers:
+        - image: {{ .Values.deployment.quiethn.image }}
+          name: {{ include "quiethn.name" . }} 
+          ports:
+            - containerPort: {{ .Values.deployment.quiethn.containerPort }}
+              name: http
+          env:
+            - name: HN_REDIS_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  key: redisAddr
+                  name: {{ include "quiethn.configMapName" . }}
+            - name: HN_REDIS_DB
+              valueFrom:
+                configMapKeyRef:
+                  key: redisDb
+                  name: {{ include "quiethn.configMapName" . }}
+                  optional: true
+            - name: HN_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: redisPassword 
+                  name: {{ include "quiethn.secretName" . }}
+            - name: HN_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: hnAddr 
+                  name: {{ include "quiethn.configMapName" . }}
+                  optional: true
