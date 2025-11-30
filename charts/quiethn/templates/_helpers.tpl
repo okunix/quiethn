@@ -7,6 +7,45 @@
 {{- end -}}
 
 {{/*
+Full environment variable config for quiethn
+*/}}
+{{- define "quiethn.env" -}}
+- name: HN_REDIS_ADDR
+  valueFrom:
+    configMapKeyRef:
+      key: redisAddr
+      name: {{ include "quiethn.configMapName" . }}
+- name: HN_REDIS_DB
+  valueFrom:
+    configMapKeyRef:
+      key: redisDb
+      name: {{ include "quiethn.configMapName" . }}
+      optional: true
+- name: HN_REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      key: redisPassword 
+      name: {{ include "quiethn.secretName" . }}
+- name: HN_BASE_URL
+  valueFrom:
+    configMapKeyRef:
+      key: hnAddr 
+      name: {{ include "quiethn.configMapName" . }}
+      optional: true
+- name: HN_SERVER_PORT
+  valueFrom:
+    configMapKeyRef:
+      key: serverPort
+      name: {{ include "quiethn.configMapName" . }}
+- name: HN_SERVER_HOST
+  valueFrom:
+    configMapKeyRef:
+      key: serverHost
+      name: {{ include "quiethn.configMapName" . }}
+{{- end -}}
+
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "quiethn.name" -}}

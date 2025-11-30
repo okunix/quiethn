@@ -5,8 +5,10 @@ metadata:
   labels:
     {{- include "quiethn.labels" . | nindent 4 }}
 data:
+  serverPort: {{ .Values.quiethn.port }}
+  serverHost: {{ .Values.quiethn.host }}
   redisAddr: {{ .Values.redis.addr }}
-  redisDb: {{ default "0" .Values.redis.db | quote }}
+  redisDb: {{ .Values.redis.db | toString }}
   {{- with .Values.hackernewsBaseAddr }}
   hnAddr: {{ . }}
   {{- end }}
