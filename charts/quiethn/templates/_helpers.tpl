@@ -26,6 +26,7 @@ Full environment variable config for quiethn
     secretKeyRef:
       key: redisPassword 
       name: {{ include "quiethn.secretName" . }}
+      optional: true
 - name: HN_BASE_URL
   valueFrom:
     configMapKeyRef:
@@ -37,11 +38,13 @@ Full environment variable config for quiethn
     configMapKeyRef:
       key: serverPort
       name: {{ include "quiethn.configMapName" . }}
+      optional: true
 - name: HN_SERVER_HOST
   valueFrom:
     configMapKeyRef:
       key: serverHost
       name: {{ include "quiethn.configMapName" . }}
+      optional: true
 {{- end -}}
 
 

@@ -7,6 +7,13 @@ service:
 serviceAccount:
   create: true
 
+ingress:
+  create: false
+  ingressClassName: traefik
+  host: example.org
+  tls: false
+  path: /
+
 quiethnImage: ghcr.io/okunix/quiethn:latest
 quiethnUpdaterImage: ghcr.io/okunix/quiethn-updater:latest
 

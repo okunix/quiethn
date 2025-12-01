@@ -26,3 +26,17 @@ spec:
               name: http
           env:
             {{- include "quiethn.env" . | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              port: {{ .Values.quiethn.port }}
+              path: /
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              port: {{ .Values.quiethn.port }}
+              path: /
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
