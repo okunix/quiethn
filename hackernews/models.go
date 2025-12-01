@@ -17,7 +17,7 @@ type NewsItem struct {
 }
 
 var (
-	domainRegex          = regexp.MustCompile(`^https?://(?:.+@)?(?:www.)?([^\s/?:]+)(?:[/?:]|$)`)
+	domainRegex          = regexp.MustCompile(`^https?://(?:.+?@)?(?:www.)?([^\s/?:]+)(?:[/?:]|$)`)
 	trimSpacesRegex      = regexp.MustCompile(`^\s+|\s+$`)
 	htmlTagRegex         = regexp.MustCompile(`<[^>]*>`)
 	sequentialWhitespace = regexp.MustCompile(`\s+`)
