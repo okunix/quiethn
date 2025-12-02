@@ -15,6 +15,7 @@ import (
 type HackerNewsClient interface {
 	GetTopStories(ctx context.Context, limit int) ([]*NewsItem, error)
 	GetItemById(ctx context.Context, id uint32) (*NewsItem, error)
+	GetTopItems(ctx context.Context) ([]uint32, error)
 }
 
 type HackerNewsClientImpl struct {
@@ -42,22 +43,9 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		return nil, errors.New("limit it too high, max 500")
 	}
 
-	getTopStoriesURL := client.baseURL + getTopStoriesPath
-	req, err := http.NewRequestWithContext(ctx, "GET", getTopStoriesURL, nil)
+	ids, err := client.GetTopItems(ctx)
 	if err != nil {
-		return nil, err
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-	var ids []uint32
-	err = json.NewDecoder(resp.Body).Decode(&ids)
-	if err != nil {
-		return nil, err
+		return []*NewsItem{}, err
 	}
 
 	var (
@@ -67,7 +55,8 @@ func (client *HackerNewsClientImpl) GetTopStories(
 	newCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	newsItems := make([]*NewsItem, 0, limit)
-	for _, id := range ids {
+	idRange := ids[:len(ids)*1/5]
+	for _, id := range idRange {
 		wg.Add(1)
 		go func(ctx context.Context, id uint32) {
 			defer wg.Done()
@@ -131,4 +120,25 @@ func (client *HackerNewsClientImpl) GetItemById(ctx context.Context, id uint32) 
 		time.Unix(newsItemResponse.Time, 0),
 	)
 	return &newsItem, err
+}
+
+func (client *HackerNewsClientImpl) GetTopItems(ctx context.Context) ([]uint32, error) {
+	getTopStoriesURL := client.baseURL + getTopStoriesPath
+	req, err := http.NewRequestWithContext(ctx, "GET", getTopStoriesURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+	var ids []uint32
+	err = json.NewDecoder(resp.Body).Decode(&ids)
+	if err != nil {
+		return []uint32{}, err
+	}
+	return ids, nil
 }
