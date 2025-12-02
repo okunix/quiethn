@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 	"slices"
-	"sync"
 	"time"
 )
 
@@ -48,18 +47,15 @@ func (client *HackerNewsClientImpl) GetTopStories(
 		return []*NewsItem{}, err
 	}
 
-	var (
-		mu sync.RWMutex
-		wg sync.WaitGroup
-	)
 	newCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
 	newsItems := make([]*NewsItem, 0, limit)
-	idRange := ids[:len(ids)*1/5]
+	ch := make(chan *NewsItem)
+	idRange := ids[:limit*5/4]
+
 	for _, id := range idRange {
-		wg.Add(1)
 		go func(ctx context.Context, id uint32) {
-			defer wg.Done()
 			item, err := client.GetItemById(ctx, id)
 			if err != nil {
 				if errors.Is(err, context.Canceled) {
@@ -71,12 +67,17 @@ func (client *HackerNewsClientImpl) GetTopStories(
 			if item.Type != "story" {
 				return
 			}
-			mu.Lock()
-			newsItems = append(newsItems, item)
-			mu.Unlock()
+			select {
+			case ch <- item:
+			case <-ctx.Done():
+			}
 		}(newCtx, id)
 	}
-	wg.Wait()
+
+	for range limit {
+		newsItems = append(newsItems, <-ch)
+	}
+	cancel()
 
 	// sorting
 	slices.SortFunc(newsItems, func(a *NewsItem, b *NewsItem) int {
